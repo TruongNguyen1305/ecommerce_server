@@ -1,4 +1,5 @@
-import Book from '../models/Book.js'
+import Book from '../models/Book.js';
+import {createHmac} from 'crypto'
 
 // [GET] /api/books
 export const getAlls = (req, res, next) =>{
@@ -109,8 +110,11 @@ export const create = async (req,res, next) => {
                 'Content-Type': 'application/json',
             },
             body: requestBody
+        });
+        return res.status(200).json({
+            book: newBook,
+            payment: await response.json()
         })
-        return res.status(200).json(await response.json())
     } catch (error) {
         console.log(error);
         return next(error);
@@ -137,6 +141,18 @@ export const remove = async (req, res, next) => {
         await book.deleteOne();
         
         return res.status(200).json(book);
+    } catch (error) {
+        console.log(error);
+        return next(error);
+    }
+}
+
+//[POST] /api/books/pay
+export const handlePayment = async (req, res, next) => {
+    try {
+        console.log(req.body)
+        
+        return res.status(200).json("cc");
     } catch (error) {
         console.log(error);
         return next(error);
