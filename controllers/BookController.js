@@ -175,14 +175,17 @@ export const handlePayment = async (req, res, next) => {
          * 
          * 
          */
-        
+        const data = JSON.parse(Buffer.from(extraData, "base64").toString());
         if(resultCode === 0) {
-            const data = JSON.parse(Buffer.from(extraData, "base64").toString());
             const book = await Book.findByIdAndUpdate(data.id, {
                 isSelling: true
             }, {
                 new: true
             });
+            console.log(book);
+        }
+        else {
+            const book = await Book.findByIdAndDelete(data.id);
             console.log(book);
         }
         
