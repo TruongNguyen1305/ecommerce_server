@@ -151,7 +151,35 @@ export const remove = async (req, res, next) => {
 //[POST] /api/books/pay
 export const handlePayment = async (req, res, next) => {
     try {
-        console.log(req.body)
+        const accessKey = process.env.ACCESS_KEY;
+        const secretkey = process.env.SECRET_KEY;
+
+        const {
+            partnerCode,
+            orderId,
+            requestId,
+            amount,
+            orderInfo,
+            orderType,
+            transId ,
+            resultCode,
+            message,
+            payType,
+            responseTime,
+            extraData,
+            signature,
+        } = req.body
+
+        const rawHash = "accessKey=" + accessKey + "&amount=" + amount + "&extraData=" + extraData + "&message=" + message + "&orderId=" + orderId + "&orderInfo=" + orderInfo +
+			"&orderType=" + orderType + "&partnerCode=" + partnerCode + "&payType=" + payType + "&requestId=" + requestId + "&responseTime=" + responseTime +
+			"&resultCode=" + resultCode + "&transId=" + transId;
+
+        let partnerSignature = createHmac('sha256', secretkey)
+            .update(rawHash)
+            .digest('hex');
+        
+        console.log(partnerSignature)
+        console.log(signature)
         
         return res.status(200).json("cc");
     } catch (error) {
