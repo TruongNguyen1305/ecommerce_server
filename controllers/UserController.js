@@ -25,31 +25,40 @@ export const registerUser = async (req,res, next) => {
     const {name, email, password, avatar, phoneNumber} = req.body
     if(!name || !email || !password || !phoneNumber) {
         res.status(400)
-        next(new Error('Bạn phải điền các thông tin cần thiết'))
+        return next(new Error('Bạn phải điền các thông tin cần thiết'))
     }
 
     if(!validateEmail(email)){
         res.status(400)
-        next(new Error('Email không hợp lệ'))
+        return next(new Error('Email không hợp lệ'))
     }
 
     if(!validatePhone(phoneNumber)){
         res.status(400)
-        next(new Error('Số điện thoại không hợp lệ'))
+        return next(new Error('Số điện thoại không hợp lệ'))
     }
 
     const userExist = await User.findOne({email})
 
     if(userExist) {
         res.status(400)
-        next(new Error('Email đã được sử dụng'))
+        return next(new Error('Email đã được sử dụng'))
     }
 
     const user = new User(req.body)
     user.save()
         .then(user => {
+            delete user.password
             res.status(201).json({
-                ...user,
+                _id: user._id,
+                email: user.email,
+                name: user.name,
+                avatar: user.avatar,
+                phoneNumber: user.phoneNumber,
+                address: user.address,
+                province: user.province,
+                district: user.district,
+                ward: user.ward,
                 token: generateToken(user._id)
             })
         })
@@ -61,13 +70,20 @@ export const authUser = async (req, res, next) => {
     const {email, password} = req.body
     if(!email || !password) {
         res.status(400)
-        next(new Error('Bạn phải điền các thông tin cần thiết'))
+        return next(new Error('Bạn phải điền các thông tin cần thiết'))
     }
 
-    const user = await User.findOne({ email }).select('-password')
+    const user = await User.findOne({ email })
     if(user && (await user.matchPassword(password))) {
         res.status(201).json({
-            ...user,
+            _id: user._id,
+            email: user.email,
+            name: user.name,
+            avatar: user.avatar,
+            phoneNumber: user.phoneNumber,
+            address: user.address,
+            province: user.province,
+            district: user.district,
             token: generateToken(user._id)
         })
     }
