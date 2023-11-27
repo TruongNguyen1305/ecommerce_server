@@ -22,6 +22,7 @@
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.6.2",
     "mongoose-slug-generator": "^1.0.4",
+    "node-fetch": "^3.3.2",
     "path": "^0.12.7"
   },
   "devDependencies": {
