@@ -170,18 +170,23 @@ export const handlePayment = async (req, res, next) => {
             signature,
         } = req.body
 
-        const rawHash = "accessKey=" + accessKey + "&amount=" + amount + "&extraData=" + extraData + "&message=" + message + "&orderId=" + orderId + "&orderInfo=" + orderInfo +
-			"&orderType=" + orderType + "&partnerCode=" + partnerCode + "&payType=" + payType + "&requestId=" + requestId + "&responseTime=" + responseTime +
-			"&resultCode=" + resultCode + "&transId=" + transId;
-
-        let partnerSignature = createHmac('sha256', secretkey)
-            .update(rawHash)
-            .digest('hex');
+        /**
+         * verify signature
+         * 
+         * 
+         */
         
-        console.log(partnerSignature)
-        console.log(signature)
+        if(resultCode === 0) {
+            const data = JSON.parse(Buffer.from(extraData, "base64").toString());
+            const book = await Book.findByIdAndUpdate(data.id, {
+                isSelling: true
+            }, {
+                new: true
+            });
+            console.log(book);
+        }
         
-        return res.status(200).json("cc");
+        return res.status(200).json("OK");
     } catch (error) {
         console.log(error);
         return next(error);
