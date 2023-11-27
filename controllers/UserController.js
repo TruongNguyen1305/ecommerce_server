@@ -45,15 +45,11 @@ export const registerUser = async (req,res, next) => {
         next(new Error('Email đã được sử dụng'))
     }
 
-    const user = new User({name, email, password, avatar, phoneNumber})
+    const user = new User(req.body)
     user.save()
         .then(user => {
             res.status(201).json({
-                _id: user._id,
-                name: user.name,
-                email: user.email,
-                phone: user.phoneNumber,
-                avatar: user.avatar,
+                ...user,
                 token: generateToken(user._id)
             })
         })
@@ -68,14 +64,10 @@ export const authUser = async (req, res, next) => {
         next(new Error('Bạn phải điền các thông tin cần thiết'))
     }
 
-    const user = await User.findOne({ email }).populate('favourites')
+    const user = await User.findOne({ email }).select('-password')
     if(user && (await user.matchPassword(password))) {
         res.status(201).json({
-            _id: user._id,
-            name: user.name,
-            email: user.email,
-            avatar: user.avatar,
-            favourites: user.favourites,
+            ...user,
             token: generateToken(user._id)
         })
     }

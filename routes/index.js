@@ -1,10 +1,8 @@
-import roomsRouter from './rooms.js'
 import UserRouter from './users.js'
-import reviewsRouter from './reviews.js';
+import BookRouter from './books.js';
 function route(app) {
-    app.use('/api/rooms', roomsRouter);
     app.use('/api/users', UserRouter);
-     app.use('/api/reviews',reviewsRouter);
+    app.use('/api/books', BookRouter);
 }
 
 export default route;

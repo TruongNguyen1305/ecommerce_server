@@ -1,4 +1,3 @@
-
 import express from 'express';
 import * as UserController from '../controllers/UserController.js'
 import { verifyToken } from '../middlewares/authMiddleware.js';
