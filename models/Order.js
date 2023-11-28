@@ -12,6 +12,14 @@ const OrderSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
+    name: {
+        type: String,
+        // required: true
+    },
+    phone: {
+        type: String,
+        // required: true
+    },
     deliveryFee: {
         type: Number,
         default: 0
