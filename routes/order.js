@@ -4,7 +4,11 @@ import { verifyToken } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
+//Mua hàng trả sau
 router.post('/create-order', verifyToken, orderController.createOrder)
+//Mua hàng trả trước
+router.post('/pay-order', verifyToken, orderController.payOrder)
+router.post('/notify_payment', verifyToken, orderController.handlePayment)
 router.delete('/remove/:id',verifyToken, orderController.removeOrder)
 router.put('/update/:id',verifyToken, orderController.updateOrder)
 router.get('/myOrder', verifyToken, orderController.getOrderByUserId)
