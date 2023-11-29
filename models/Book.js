@@ -9,11 +9,17 @@ const BookSchema = new mongoose.Schema({
     },
     name: {
         type: String,
-        // required: true
+        required: true
     },
     phone: {
         type: String,
-        // required: true
+        required: true
+    },
+    userName: {
+        type: String,
+    },  
+    momoPhone: {
+        type: String,
     },
     genre: {
         type: String,
