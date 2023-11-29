@@ -44,7 +44,7 @@ export const payOrder = async (req, res, next) => {
             const requestType = 'linkWallet';
             const orderInfo = 'Thanh toán qua ví MoMo';
             const ipnUrl = process.env.IPN_URL_ORDER;
-            const redirectUrl = process.env.REDIRECT_URL;
+            const redirectUrl = process.env.REDIRECT_URL_ORDER;
             const partnerClientId = process.env.PARTNER_CLIENT_ID;
             
             const data = {

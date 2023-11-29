@@ -73,7 +73,7 @@ export const create = async (req,res, next) => {
         const requestType = 'linkWallet';
         const orderInfo = 'Thanh toán qua ví MoMo';
         const ipnUrl = process.env.IPN_URL_BOOK;
-        const redirectUrl = process.env.REDIRECT_URL;
+        const redirectUrl = process.env.REDIRECT_URL_BOOK;
         const partnerClientId = process.env.PARTNER_CLIENT_ID;
 
         const data = {
