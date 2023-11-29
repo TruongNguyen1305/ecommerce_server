@@ -1,7 +1,9 @@
 import Order from '../models/Order.js'
 import Book from '../models/Book.js'
+import {createHmac} from 'crypto';
+import fetch from 'node-fetch';
 
-
+//trả sau
 export const createOrder = async (req, res, next) => {
     try {
         const book = await Book.findById(req.body.book);
@@ -16,6 +18,76 @@ export const createOrder = async (req, res, next) => {
             });
             await Book.updateOne({ _id: req.body.book }, { $set: { isSelling: false } });
             return res.status(200).json({ message: "Order created successfully", order: newOrder });
+        } else {
+            console.log('Book not found');
+            return res.status(404).json({ error: 'Book not found' });
+        }
+    } catch (error) {
+        console.log(error.message);
+        res.status(400).json({ error: error.message });
+    }
+}
+
+//trả trước
+export const payOrder = async (req, res, next) => {
+    try {
+        const book = await Book.findById(req.body.book);
+        if (book) {
+            if (book.isSelling === false) {
+                return res.status(404).json('The book has been sold');
+            }
+            const user = req.user;
+            const partnerCode = process.env.PARTNER_CODE;
+            const accessKey = process.env.ACCESS_KEY;
+            const secretkey = process.env.SECRET_KEY;
+            const lang = 'vi';
+            const requestType = 'linkWallet';
+            const orderInfo = 'Thanh toán qua ví MoMo';
+            const ipnUrl = process.env.IPN_URL_ORDER;
+            const redirectUrl = process.env.REDIRECT_URL;
+            const partnerClientId = process.env.PARTNER_CLIENT_ID;
+            
+            const data = {
+                buyer: user._id.toString(),
+                ...req.body
+            }
+            const deliveryFee = req.body.deliveryFee || 0;
+            const extraData = Buffer.from(JSON.stringify(data)).toString("base64"); 
+            const requestId = user._id.toString() + new Date().getTime();
+            const rawSignature = "accessKey=" + accessKey + "&amount=" + (book.price + deliveryFee)  + "&extraData=" + 
+                                extraData + "&ipnUrl=" + ipnUrl + "&orderId=" + 
+                                requestId + "&orderInfo=" + orderInfo + "&partnerClientId=" + partnerClientId + "&partnerCode=" + 
+                                partnerCode + "&redirectUrl=" + redirectUrl + "&requestId=" + 
+                                requestId + "&requestType=" + requestType;
+            
+            const signature = createHmac('sha256', secretkey)
+                .update(rawSignature)
+                .digest('hex');
+        
+            const requestBody = JSON.stringify({
+                partnerCode: partnerCode,
+                partnerClientId: partnerClientId,
+                requestId: requestId,
+                amount: book.price + deliveryFee,
+                orderId: requestId,
+                orderInfo: orderInfo,
+                redirectUrl: redirectUrl,
+                ipnUrl: ipnUrl,
+                requestType: requestType,
+                extraData: extraData,
+                lang: lang,
+                signature: signature,
+            });
+        
+            const response = await fetch("https://test-payment.momo.vn/v2/gateway/api/create", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: requestBody
+            });
+            return res.status(200).json(await response.json())
+            
         } else {
             console.log('Book not found');
             return res.status(404).json({ error: 'Book not found' });
@@ -126,5 +198,55 @@ export const removeOrder = async (req, res, next) => {
     } catch (error) {
         console.error('Error deleting order:', error);
         return res.status(500).json({ error: error.message });
+    }
+}
+
+//[POST] /api/orders/notify_payment
+export const handlePayment = async (req, res, next) => {
+    try {
+        const accessKey = process.env.ACCESS_KEY;
+        const secretkey = process.env.SECRET_KEY;
+
+        const {
+            partnerCode,
+            orderId,
+            requestId,
+            amount,
+            orderInfo,
+            orderType,
+            transId ,
+            resultCode,
+            message,
+            payType,
+            responseTime,
+            extraData,
+            signature,
+        } = req.body
+
+        /**
+         * verify signature
+         * 
+         * 
+         */
+        const data = JSON.parse(Buffer.from(extraData, "base64").toString());
+        if(resultCode === 0) {
+            const book = await Book.findByIdAndUpdate(data.book, {
+                isSelling: false
+            }, {
+                new: true
+            });
+
+            const order = await Order.create(data)
+            console.log(book);
+            console.log(order);
+        }
+        else {
+            console.log(`Thanh toán thất bại, resultCode: ${resultCode}`)
+        }
+        
+        return res.status(200).json("OK");
+    } catch (error) {
+        console.log(error);
+        return next(error);
     }
 }
