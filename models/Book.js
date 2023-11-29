@@ -55,7 +55,8 @@ const BookSchema = new mongoose.Schema({
 })
 
 BookSchema.index({
-    name: "text"
+    name: "text",
+    desc: "text"
 })
  
 const Book = mongoose.model('Book', BookSchema)

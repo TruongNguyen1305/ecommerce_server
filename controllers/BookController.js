@@ -16,6 +16,7 @@ export const getAlls = (req, res, next) =>{
             $search: name
         }
     }
+
     Book.find(query).sort({publishFee: -1}).limit(parseInt(num))
         .then(books => res.status(200).json(books))
         .catch(next)
