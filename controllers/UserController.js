@@ -75,17 +75,8 @@ export const authUser = async (req, res, next) => {
 
     const user = await User.findOne({ email })
     if(user && (await user.matchPassword(password))) {
-        res.status(201).json({
-            _id: user._id,
-            email: user.email,
-            name: user.name,
-            avatar: user.avatar,
-            phoneNumber: user.phoneNumber,
-            address: user.address,
-            province: user.province,
-            district: user.district,
-            token: generateToken(user._id)
-        })
+        const token = generateToken(user._id)
+        res.status(201).json({user, token})
     }
     else{
         res.status(401)
