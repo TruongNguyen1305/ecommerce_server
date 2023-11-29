@@ -228,6 +228,7 @@ export const handlePayment = async (req, res, next) => {
          * 
          */
         const data = JSON.parse(Buffer.from(extraData, "base64").toString());
+        console.log(data);
         if(resultCode === 0) {
             const book = await Book.findByIdAndUpdate(data.book, {
                 isSelling: false
