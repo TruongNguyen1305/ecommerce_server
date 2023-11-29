@@ -16,6 +16,7 @@ export const getAlls = (req, res, next) =>{
             $search: name
         }
     }
+
     Book.find(query).sort({publishFee: -1}).limit(parseInt(num))
         .then(books => res.status(200).json(books))
         .catch(next)
@@ -71,7 +72,7 @@ export const create = async (req,res, next) => {
         const lang = 'vi';
         const requestType = 'linkWallet';
         const orderInfo = 'Thanh toán qua ví MoMo';
-        const ipnUrl = process.env.IPN_URL;
+        const ipnUrl = process.env.IPN_URL_BOOK;
         const redirectUrl = process.env.REDIRECT_URL;
         const partnerClientId = process.env.PARTNER_CLIENT_ID;
 
@@ -148,7 +149,7 @@ export const remove = async (req, res, next) => {
     }
 }
 
-//[POST] /api/books/pay
+//[POST] /api/books/notify_payment
 export const handlePayment = async (req, res, next) => {
     try {
         const accessKey = process.env.ACCESS_KEY;
@@ -187,6 +188,7 @@ export const handlePayment = async (req, res, next) => {
         else {
             const book = await Book.findByIdAndDelete(data.id);
             console.log(book);
+            console.log(`Thanh toán thất bại, resultCode: ${resultCode}`)
         }
         
         return res.status(200).json("OK");
