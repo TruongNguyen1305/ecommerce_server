@@ -118,7 +118,7 @@ export const getOrderByUserId = async (req, res, next) => {
                     $in: (await Book.find({seller: user._id})).map(b => b._id.toString())
                 }}
             ]
-         });
+         }).populate("book");
         return res.status(200).json(orders);
     } catch (error) {
         console.log(error.message);
@@ -129,12 +129,11 @@ export const getOrderByUserId = async (req, res, next) => {
 export const getOrderDetail = async (req, res, next) => {
     try {
         const user = req.user;
-        const order = await Order.findById(req.params.id);
+        const order = await Order.findById(req.params.id).populate("book");
         if(!order) {
             return res.status(404).json({ error: 'Order not found' });
         }
-        const book = await Book.findById(order.book);
-        if(user._id.toString() !== order.buyer.toString() && user._id.toString() !== book.seller.toString()) {
+        if(user._id.toString() !== order.buyer.toString() && user._id.toString() !== order.book.seller.toString()) {
             return res.status(403).json({ error: 'Permission denied' });
         }
         return res.status(200).json(order);
