@@ -269,10 +269,8 @@ export const handlePayment = async (req, res, next) => {
       );
 
       const delivery = await createShippingOrder(book, data, false);
-      console.log(delivery);
       const newOrder = await Order.create({
-        buyer: user._id,
-        ...req.body,
+        ...data,
         shippingCode: delivery.order_code,
         deliveryFee: Number(delivery.total_fee),
       });
